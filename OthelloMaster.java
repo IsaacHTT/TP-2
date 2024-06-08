@@ -1,3 +1,7 @@
+import java.awt.image.BufferedImage;
+import java.awt.Color;
+import javax.swing.JFrame;
+import java.io.*;
 import javax.swing.JOptionPane;
 
 public class OthelloMaster {
@@ -12,6 +16,7 @@ public class OthelloMaster {
             ModoHotSeat(); //llamamos a la funcion que ejecuta el Modo Hot Seat
         } else if (escogencia == 1) {
             System.out.println("Modo de juego seleccionado: IA vs Human");
+            modoIA();
         } else {
             System.out.println("No se selecciono un modo de juego.");
         }
@@ -80,7 +85,9 @@ public class OthelloMaster {
                 }
 
                 if (posicion.equals("500,500")) {
-                    gameOver = true;
+                    //
+                    movimientoValido = true;
+                    jugadorActual = (jugadorActual == 1) ? 0 : 1;
                     break;
                 }
 
@@ -101,7 +108,7 @@ public class OthelloMaster {
                 try {
                     int row = Integer.parseInt(pos[0].trim()) - 1;
                     int col = Integer.parseInt(pos[1].trim()) - 1;
-                    movimientoValido = colocarFicha(tablero, row, col, jugadorActual); //usamos la funcion colocarFciha, nos da un valor boleano y con ello sabemos si la posicion es valida
+                    movimientoValido = colocarFicha(tablero, row, col, jugadorActual, 0); //usamos la funcion colocarFciha, nos da un valor boleano y con ello sabemos si la posicion es valida
 
                     //cremos los condicionales anti errores para los datos dados
 
@@ -126,6 +133,156 @@ public class OthelloMaster {
         int p2puntos = contadorPuntos(tablero, p2Color);
         String mensajeWinner = "Juego terminado.\nPuntos Jugador 1 (" + (p1Color == 1 ? "Blanco" : "Negro") + "): " + p1puntos +"\nPuntos Jugador 2 (" + (p2Color == 1 ? "Blanco" : "Negro") + "): " + p2puntos;JOptionPane.showMessageDialog(null, mensajeWinner);
     }
+
+    //modo IA
+
+    public static void modoIA(){
+        String[] tamanoTablero = {"8x8", "10x10", "10x14", "14x10"};
+        String tamanoEscogido = (String) JOptionPane.showInputDialog(null,"Selecciona el tamaño del tablero:","Modo Hot Seat",JOptionPane.QUESTION_MESSAGE,null,tamanoTablero,tamanoTablero[0]);
+
+        //Creamos un prueba de errores por si la persona no escoge ninguna opcion
+
+        if (tamanoEscogido == null) {
+            return;
+        }
+        //Creamos el tablero con la funcion crearTablero hecha mas adelante, segun el tamano seleccionado por el usuario anteriormente
+
+        int[][] tablero = crearTablero(tamanoEscogido);
+
+        //Ahora preguntamos por la escogencia del color para los jugadores, le preguntamos a uno y le asignamos al otro el color restante
+
+        String[] opcionesColor = {"Blanco", "Negro"};
+        int p1ColorEscogencia = JOptionPane.showOptionDialog(null,"Jugador, elige tu color:","Modo Humano vs IA",JOptionPane.DEFAULT_OPTION,JOptionPane.INFORMATION_MESSAGE,null,opcionesColor,opcionesColor[0]);
+
+        int p1Color = p1ColorEscogencia == 0 ? 1 : 0;
+        int p2Color = p1Color == 1 ? 0 : 1;
+
+        // Dasmos un mensaje para que sepan que se determino el color a corde a como se selecciono
+
+        JOptionPane.showMessageDialog(null, "Jugador ha elegido " + opcionesColor[p1ColorEscogencia] + ".\nLa IA será " + opcionesColor[1 - p1ColorEscogencia]);
+
+        //Una vez asignadas los colores, inicializamos el tablero, con la funcion iniciarTablero, declarada mas adelante
+
+        iniciarTablero(tablero);
+
+        //Ahora imprimimos el tablero con la funcion imprimirTablero tambien declarada mas adelante
+
+        imprimirTablero(tablero);
+
+        // Ahora sí se comienza el juego, declarando el fin de juego como falso y determinando que el jugador con color negro empieza siempre 
+        boolean gameOver = false;
+        //int jugadorActual = (p1Color == 0) ? p1Color : p2Color; // Jugador con color negro empienza siempre
+        //System.out.println(p1Color); //SI ESCOGE BLANCO, P1COLOR ES 1
+
+        int jugadorActual;
+        if(p1Color == 1){
+            jugadorActual = 1; //0 usuario, 1 ia
+        }
+        else{
+            jugadorActual = 0;
+        }
+
+        //Creamos un contador para el while que determina si el juego a terminado o no, el cual es el contador de turnos jugados
+
+        int turnoCont = 0;
+
+        while (!gameOver) {
+            boolean movimientoValido = false; 
+
+            // Si el juego no ha terminado siginifica que aun se pueden mover piezas de algun jugador
+
+
+            while (!movimientoValido) {
+
+                //Como hay piezas que se pueden mover, preguntamos sobre que posicion quiere poner las piezas al jugador que le toca
+                if(jugadorActual == 0){
+
+                String posicion = JOptionPane.showInputDialog(null, "Jugador " + " (" + (p1Color == 1 ? "Blanco" : "Negro") + "), ingresa tu movimiento (fila,columna) o 500,500 para terminar:");
+
+                //En los siguientes condicionales se hace prueba de que el dato proporcionado sea correcto o cumpla con los requisitos, es decir, a prueba de error
+
+                if (posicion == null || posicion.isEmpty()) {
+                    continue;
+                }
+
+                if (posicion.equals("500,500")) {
+                    movimientoValido = true;
+                    jugadorActual = (jugadorActual == 1) ? 0 : 1;
+                    break;
+                }
+
+                //convertimos la entrada en un array separado por coma
+
+                String[] pos = posicion.split(",");
+
+                //Condicional anti errores por parte del usuario, si no mete un dato con dos digitos, sale mensaje de error
+
+                if (pos.length != 2) {
+                    JOptionPane.showMessageDialog(null, "Entrada inválida. Por favor, ingresa la posición en el formato fila,columna.");
+                    continue;
+                }
+
+                //Ahora vamos a verificar si la posicion dada es valida para poner la ficha, o si dio un comando distinto a lo esperado
+                //Como usamos matrices, creamos filas y columnas para verificar dichos datos.
+
+                try {
+                    int row = Integer.parseInt(pos[0].trim()) - 1;
+                    int col = Integer.parseInt(pos[1].trim()) - 1;
+                    movimientoValido = colocarFicha(tablero, row, col, p1Color, 0); //usamos la funcion colocarFciha, nos da un valor boleano y con ello sabemos si la posicion es valida
+
+                    //cremos los condicionales anti errores para los datos dados
+
+                    if (!movimientoValido) {
+                        JOptionPane.showMessageDialog(null, "Movimiento inválido, intenta de nuevo.");
+                    } else {
+                        imprimirTablero(tablero);
+                        jugadorActual = (jugadorActual == 1) ? 0 : 1;
+                    }
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Entrada inválida, intenta de nuevo.");
+                }
+                }
+
+                else{
+                    int[][] opciones = new int[tablero.length*tablero[0].length][2];
+                    int n = 0;
+                    for(int i = 1; i <= 14; i++){
+                        for(int j = 1; j <= 14; j++){
+                            if(colocarFicha(tablero, j-1, i-1, 1 - p1Color, 1)){
+                                System.out.println("if check" + j + i);
+                                opciones[n][0] = j-1;
+                                opciones[n][1] = i-1;
+                                n += 1;
+                            }
+                        }
+                    }
+                     if(opciones != null){
+                    int[] opcion = opciones[(int)(Math.random()*n)];
+                    colocarFicha(tablero, opcion[0], opcion[1], 1-p1Color, 0);
+                    imprimirTablero(tablero);
+                    jugadorActual = (jugadorActual == 1) ? 0 : 1;
+                    }
+                    else{
+                   
+                        JOptionPane.showMessageDialog(null, "La IA no puede poner fichas");
+                        jugadorActual = (jugadorActual == 1) ? 0 : 1;
+                    }
+                    
+                }
+                
+            }
+
+            gameOver = endGameOver(tablero);
+            turnoCont++;
+        }
+
+        //hacemos un conteo de los puntos cuando ya se haya acabado el juego
+
+        int p1puntos = contadorPuntos(tablero, p1Color);
+        int p2puntos = contadorPuntos(tablero, p2Color);
+        String mensajeWinner = "Juego terminado.\nPuntos Jugador 1 (" + (p1Color == 1 ? "Blanco" : "Negro") + "): " + p1puntos +"\nPuntos Jugador 2 (" + (p2Color == 1 ? "Blanco" : "Negro") + "): " + p2puntos;JOptionPane.showMessageDialog(null, mensajeWinner);
+    }
+
 
     //funcion para crear tablero, usada en el main, recibe lo seleccionado por el usuario para crear el tablero.
 
@@ -193,7 +350,7 @@ public class OthelloMaster {
 
     //funcion colocarFicha, recibe como datos el tablero en general para obtener toda la info de las fichas ya puestas, recibe las cordenadas de la nueva ficha que se va a analizar y el color de la misma
 
-    private static boolean colocarFicha(int[][] tablero, int row, int col, int color) {
+    private static boolean colocarFicha(int[][] tablero, int row, int col, int color, int prueba) {
 
         //condicional anti errores por datos dados por el usuario
 
@@ -225,6 +382,7 @@ public class OthelloMaster {
 
             if (oponenteEncontrado && r >= 0 && r < tablero.length && c >= 0 && c < tablero[0].length && tablero[r][c] == color) {
                 movimientoValido = true;
+                if(prueba == 0){
                 int flipR = row + dir[0];
                 int flipC = col + dir[1];
                 while (flipR != r || flipC != c) {
@@ -232,10 +390,11 @@ public class OthelloMaster {
                     flipR += dir[0];
                     flipC += dir[1];
                 }
+                }
             }
         }
 
-        if (movimientoValido) {
+        if (movimientoValido && prueba == 0) {
             tablero[row][col] = color;
         }
 
