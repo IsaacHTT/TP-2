@@ -3,6 +3,7 @@ import java.awt.Color;
 import javax.swing.JFrame;
 import java.io.*;
 import javax.swing.JOptionPane;
+import java.awt.*;
 
 public class OthelloMaster {
     public static void main(String[] args) {
@@ -22,6 +23,12 @@ public class OthelloMaster {
         }
     }
 
+    public static final int ampli = 25; //factor por el que se multiplica el tamano del tablero para dar la imagen
+    public static final Color verdeClaro = new Color(54,105,43);
+    public static final int verdeClaroRGB = verdeClaro.getRGB();
+    public static final Color verdeOscuro = new Color(92,190,72);
+    public static final int verdeOscuroRGB = verdeOscuro.getRGB();
+
     private static void ModoHotSeat() {
 
         //iniciamos el modo de juego preguntando por el tamaño del tablero deseado, tambien con JOption 
@@ -37,6 +44,7 @@ public class OthelloMaster {
         //Creamos el tablero con la funcion crearTablero hecha mas adelante, segun el tamano seleccionado por el usuario anteriormente
 
         int[][] tablero = crearTablero(tamanoEscogido);
+
 
         //Ahora preguntamos por la escogencia del color para los jugadores, le preguntamos a uno y le asignamos al otro el color restante
 
@@ -54,9 +62,11 @@ public class OthelloMaster {
 
         iniciarTablero(tablero);
 
+
         //Ahora imprimimos el tablero con la funcion imprimirTablero tambien declarada mas adelante
 
         imprimirTablero(tablero);
+        interfaz(tablero);
 
         // Ahora sí se comienza el juego, declarando el fin de juego como falso y determinando que el jugador con color negro empieza siempre 
         boolean gameOver = false;
@@ -117,6 +127,7 @@ public class OthelloMaster {
                     } else {
                         imprimirTablero(tablero);
                         jugadorActual = (jugadorActual == 1) ? 0 : 1;
+                        interfaz(tablero);
                     }
                 } catch (NumberFormatException e) {
                     JOptionPane.showMessageDialog(null, "Entrada inválida, intenta de nuevo.");
@@ -168,6 +179,7 @@ public class OthelloMaster {
         //Ahora imprimimos el tablero con la funcion imprimirTablero tambien declarada mas adelante
 
         imprimirTablero(tablero);
+        interfaz(tablero);
 
         // Ahora sí se comienza el juego, declarando el fin de juego como falso y determinando que el jugador con color negro empieza siempre 
         boolean gameOver = false;
@@ -237,6 +249,7 @@ public class OthelloMaster {
                     } else {
                         imprimirTablero(tablero);
                         jugadorActual = (jugadorActual == 1) ? 0 : 1;
+                        interfaz(tablero);
                     }
                 } catch (NumberFormatException e) {
                     JOptionPane.showMessageDialog(null, "Entrada inválida, intenta de nuevo.");
@@ -249,7 +262,6 @@ public class OthelloMaster {
                     for(int i = 1; i <= 14; i++){
                         for(int j = 1; j <= 14; j++){
                             if(colocarFicha(tablero, j-1, i-1, 1 - p1Color, 1)){
-                                System.out.println("if check" + j + i);
                                 opciones[n][0] = j-1;
                                 opciones[n][1] = i-1;
                                 n += 1;
@@ -260,6 +272,7 @@ public class OthelloMaster {
                     int[] opcion = opciones[(int)(Math.random()*n)];
                     colocarFicha(tablero, opcion[0], opcion[1], 1-p1Color, 0);
                     imprimirTablero(tablero);
+                    interfaz(tablero);
                     jugadorActual = (jugadorActual == 1) ? 0 : 1;
                     }
                     else{
@@ -428,4 +441,60 @@ public class OthelloMaster {
         }
         return puntos;
     }
+
+    private static void interfaz(int[][] tablero){
+        
+
+
+       
+        BufferedImage tablon = new BufferedImage(tablero[0].length*ampli,(tablero.length+1)*ampli,BufferedImage.TYPE_INT_RGB);
+       for(int i=0; i<tablero[0].length; i++){
+            for(int j=0; j<tablero.length; j++){
+                switch(tablero[j][i]){
+                        case 0:
+                        for(int k=0; k<=ampli-1; k++){
+                            for(int p=0; p<=ampli-1; p++){
+                                tablon.setRGB(i*ampli+k, (j+1)*ampli+p, Color.BLACK.getRGB());
+                            }
+                        }
+                        break;
+                        case 1:
+                        for(int k=0; k<=ampli-1; k++){
+                            for(int p=0; p<=ampli-1; p++){
+                                tablon.setRGB(i*ampli+k, (j+1)*ampli+p, Color.WHITE.getRGB());
+                            }
+                        }
+                        break;
+                        default:
+                        for(int k=0; k<=ampli-1; k++){
+                            for(int p=0; p<=ampli-1; p++){
+                                if(i%2==j%2){
+                                    tablon.setRGB(i*ampli+k, (j+1)*ampli+p, verdeOscuroRGB);
+                                }
+                                else{
+                                    tablon.setRGB(i*ampli+k, (j+1)*ampli+p, verdeClaroRGB);
+                                }                            
+                            }
+                        }
+                        }  
+                    }
+                }
+            
+            
+       
+
+    JFrame f = new JFrame("Othello"){
+      public void paint(java.awt.Graphics g){
+        g.drawImage(tablon,0,0,null);
+      } 
+    };
+    Image img = Toolkit.getDefaultToolkit().getImage("logo.png");
+    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    f.setSize(tablero[0].length*ampli,tablero.length*ampli + 30);
+    f.repaint();
+    f.setVisible(true);
+    f.setIconImage(img);
+    f.toFront();
+    }
+    
 }
