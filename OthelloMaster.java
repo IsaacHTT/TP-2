@@ -1,10 +1,15 @@
+
 import java.awt.image.BufferedImage;
 import java.awt.Color;
 import javax.swing.JFrame;
 import java.io.*;
 import javax.swing.JOptionPane;
 import java.awt.*;
-
+import java.io.Serializable;
+import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+ 
 public class OthelloMaster {
     public static void main(String[] args) {
 
@@ -135,6 +140,21 @@ public class OthelloMaster {
             }
 
             gameOver = endGameOver(tablero);
+
+            //CODIGO NUEVO EMPIEZA
+            // agregamos el código para verificar si el tablero está lleno y mostrar un mensaje de empate si es así.
+            gameOver = endGameOver(tablero) || tableroLleno(tablero);
+            if (gameOver) {
+                JOptionPane.showMessageDialog(null, "¡Empate! El tablero está lleno.");
+                break; // Terminamos el bucle mientras el juego ha terminado
+            }
+
+            // Después de la verificación del fin del juego, agregamos el código para verificar si el jugador actual tiene movimientos disponibles.
+            if (!tieneMovimientosDisponibles(tablero, jugadorActual)) {
+                JOptionPane.showMessageDialog(null, "Jugador " + (jugadorActual + 1) + " (" + (jugadorActual == p1Color ? "Blanco" : "Negro") + ") no tiene movimientos disponibles. Paso de turno.");
+                jugadorActual = 1 - jugadorActual; // Cambiamos al otro jugador
+            }
+            //CODIGO NUEVO TERMINA
             turnoCont++;
         }
 
@@ -143,6 +163,20 @@ public class OthelloMaster {
         int p1puntos = contadorPuntos(tablero, p1Color);
         int p2puntos = contadorPuntos(tablero, p2Color);
         String mensajeWinner = "Juego terminado.\nPuntos Jugador 1 (" + (p1Color == 1 ? "Blanco" : "Negro") + "): " + p1puntos +"\nPuntos Jugador 2 (" + (p2Color == 1 ? "Blanco" : "Negro") + "): " + p2puntos;JOptionPane.showMessageDialog(null, mensajeWinner);
+
+
+        //CODIGO NUEVO EMPIEZA
+
+        String jugador1 = JOptionPane.showInputDialog("Introduce el nombre del Jugador 1:");
+        String jugador2 = JOptionPane.showInputDialog("Introduce el nombre del Jugador 2:");
+
+        añadirRecord(jugador1, p1puntos, tamanoEscogido, "Hot Seat");
+        añadirRecord(jugador2, p2puntos, tamanoEscogido, "Hot Seat");
+
+        // Mostrar los records
+        mostrarRecords(tamanoEscogido, "Hot Seat");
+
+        //CODIGO NUEVO FIN
     }
 
     //modo IA
@@ -286,6 +320,21 @@ public class OthelloMaster {
             }
 
             gameOver = endGameOver(tablero);
+
+            //CODIGO NUEVO EMPIEZA
+            // agregamos el código para verificar si el tablero está lleno y mostrar un mensaje de empate si es así.
+            gameOver = endGameOver(tablero) || tableroLleno(tablero);
+            if (gameOver) {
+                JOptionPane.showMessageDialog(null, "¡Empate! El tablero está lleno.");
+                break; // Terminamos el bucle mientras el juego ha terminado
+            }
+
+            // Después de la verificación del fin del juego, agregamos el código para verificar si el jugador actual tiene movimientos disponibles.
+            if (!tieneMovimientosDisponibles(tablero, jugadorActual)) {
+                JOptionPane.showMessageDialog(null, "Jugador " + (jugadorActual + 1) + " (" + (jugadorActual == p1Color ? "Blanco" : "Negro") + ") no tiene movimientos disponibles. Paso de turno.");
+                jugadorActual = 1 - jugadorActual; // Cambiamos al otro jugador
+            }
+            //CODIGO NUEVO TERMINA
             turnoCont++;
         }
 
@@ -294,7 +343,18 @@ public class OthelloMaster {
         int p1puntos = contadorPuntos(tablero, p1Color);
         int p2puntos = contadorPuntos(tablero, p2Color);
         String mensajeWinner = "Juego terminado.\nPuntos Jugador 1 (" + (p1Color == 1 ? "Blanco" : "Negro") + "): " + p1puntos +"\nPuntos Jugador 2 (" + (p2Color == 1 ? "Blanco" : "Negro") + "): " + p2puntos;JOptionPane.showMessageDialog(null, mensajeWinner);
-    }
+
+        //CODIGO NUEVO EMPIEZA
+        String jugador = JOptionPane.showInputDialog("Introduce el nombre del Jugador:");
+
+        añadirRecord(jugador, p1puntos, tamanoEscogido, "IA vs Humano");
+
+        // Mostrar los records
+        mostrarRecords(tamanoEscogido, "IA vs Humano");
+
+        //CODIGO NUEVO FIN
+
+        }
 
 
     //funcion para crear tablero, usada en el main, recibe lo seleccionado por el usuario para crear el tablero.
@@ -416,6 +476,33 @@ public class OthelloMaster {
         return movimientoValido;
     }
 
+    //CODIGO NUEVO BEGIN
+    // Función para verificar si el tablero está lleno
+    private static boolean tableroLleno(int[][] tablero) {
+        for (int[] fila : tablero) {
+            for (int entrada : fila) {
+                if (entrada == 2) { // Si hay al menos una casilla vacía, el tablero no está lleno
+                    return false;
+                }
+            }
+        }
+        return true; // Si no hay casillas vacías, el tablero está lleno
+    }
+    //CODIGO NUEVO END
+
+    //CODIGO NUEVO BEGIN
+    // Función para determinar si un jugador tiene movimientos disponibles
+    private static boolean tieneMovimientosDisponibles(int[][] tablero, int color) {
+        for (int i = 0; i < tablero.length; i++) {
+            for (int j = 0; j < tablero[i].length; j++) {
+                if (colocarFicha(tablero, i, j, color, 1)) { // Utilizamos la prueba = 1 para evitar cambios en el tablero
+                    return true; // Si encuentra al menos un movimiento válido, retorna true
+                }
+            }
+        }
+        return false; // Si no encuentra ningún movimiento válido, retorna false
+    }
+
 
     //determina si las entradas del tablero estan vacias, si lo estan el juego termina
 
@@ -496,5 +583,88 @@ public class OthelloMaster {
     f.setIconImage(img);
     f.toFront();
     }
+
+    //CODIGO NUEVO COMIENZO 
+
+
+    private static final String FILENAME = "records.dat";
+    //CODIGO NUEVO EMPIEZA
+    private static List<Record> records = new ArrayList<>();
     
+    static {
+        // Lee los registros desde el archivo cuando se inicia el programa
+        cargarRecords();
+    }
+
+    // Método para cargar los records desde un archivo
+    private static void cargarRecords() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILENAME))) {
+            records = (List<Record>) ois.readObject();
+        } catch (FileNotFoundException e) {
+            System.out.println("No se encontró el archivo de records. Se creará uno nuevo.");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Método para guardar los records en un archivo
+    private static void guardarRecords() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILENAME))) {
+            oos.writeObject(records);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Método para añadir un nuevo record
+    private static void añadirRecord(String jugador, int puntos, String tamanoTablero, String tipoJuego) {
+        records.add(new Record(jugador, puntos, tamanoTablero, tipoJuego));
+        records.sort((r1, r2) -> Integer.compare(r2.getPuntos(), r1.getPuntos()));
+        if (records.size() > 10) {
+            records = records.subList(0, 10);
+        }
+        guardarRecords();
+    }
+
+    // Método para mostrar los 10 mejores records
+    private static void mostrarRecords(String tamanoTablero, String tipoJuego) {
+        System.out.println("Records para " + tamanoTablero + " - " + tipoJuego);
+        for (Record record : records) {
+            if (record.getTamanoTablero().equals(tamanoTablero) && record.getTipoJuego().equals(tipoJuego)) {
+                System.out.println(record);
+            }
+        }
+    }
+
+    //CODIGO NUEVO FIN
+    
+}
+
+
+// comienzo de la otra clase necesaria para los records por documentos
+
+class Record implements Serializable {
+    private String jugador;
+    private int puntos;
+    private String tamanoTablero;
+    private String tipoJuego;
+
+    public Record(String jugador, int puntos, String tamanoTablero, String tipoJuego) {
+        this.jugador = jugador;
+        this.puntos = puntos;
+        this.tamanoTablero = tamanoTablero;
+        this.tipoJuego = tipoJuego;
+    }
+    public int getPuntos() {
+        return puntos;
+     }
+    public String getTamanoTablero() {
+        return tamanoTablero;
+    }
+    public String getTipoJuego() {
+        return tipoJuego;
+    }
+    public String toString() {
+        return "Jugador: " + jugador + ", Puntos: " + puntos;
+    }
 }
