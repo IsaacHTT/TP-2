@@ -170,8 +170,8 @@ public class OthelloMaster {
         String jugador1 = JOptionPane.showInputDialog("Introduce el nombre del Jugador 1:");
         String jugador2 = JOptionPane.showInputDialog("Introduce el nombre del Jugador 2:");
 
-        añadirRecord(jugador1, p1puntos, tamanoEscogido, "Hot Seat");
-        añadirRecord(jugador2, p2puntos, tamanoEscogido, "Hot Seat");
+        anadirRecord(jugador1, p1puntos, tamanoEscogido, "Hot Seat");
+        anadirRecord(jugador2, p2puntos, tamanoEscogido, "Hot Seat");
 
         // Mostrar los records
         mostrarRecords(tamanoEscogido, "Hot Seat");
@@ -347,7 +347,7 @@ public class OthelloMaster {
         //CODIGO NUEVO EMPIEZA
         String jugador = JOptionPane.showInputDialog("Introduce el nombre del Jugador:");
 
-        añadirRecord(jugador, p1puntos, tamanoEscogido, "IA vs Humano");
+        anadirRecord(jugador, p1puntos, tamanoEscogido, "IA vs Humano");
 
         // Mostrar los records
         mostrarRecords(tamanoEscogido, "IA vs Humano");
@@ -584,7 +584,7 @@ public class OthelloMaster {
     f.toFront();
     }
 
-    //CODIGO NUEVO COMIENZO 
+    //CODIGO NUEVO COMIENZO. A partir de aqui, esta parte fue hecha con informacion de internet, no con lo visto en el curso.
 
 
     private static final String FILENAME = "records.dat";
@@ -616,8 +616,8 @@ public class OthelloMaster {
         }
     }
 
-    // Método para añadir un nuevo record
-    private static void añadirRecord(String jugador, int puntos, String tamanoTablero, String tipoJuego) {
+    // Método para anadir un nuevo record
+    private static void anadirRecord(String jugador, int puntos, String tamanoTablero, String tipoJuego) {
         records.add(new Record(jugador, puntos, tamanoTablero, tipoJuego));
         records.sort((r1, r2) -> Integer.compare(r2.getPuntos(), r1.getPuntos()));
         if (records.size() > 10) {
