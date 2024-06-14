@@ -143,7 +143,7 @@ public class OthelloMaster {
 
             //CODIGO NUEVO EMPIEZA
             // agregamos el código para verificar si el tablero está lleno y mostrar un mensaje de empate si es así.
-            gameOver = endGameOver(tablero) || tableroLleno(tablero);
+            /*gameOver = endGameOver(tablero) || tableroLleno(tablero);
             if (gameOver) {
                 JOptionPane.showMessageDialog(null, "¡Empate! El tablero está lleno.");
                 break; // Terminamos el bucle mientras el juego ha terminado
@@ -153,7 +153,7 @@ public class OthelloMaster {
             if (!tieneMovimientosDisponibles(tablero, jugadorActual)) {
                 JOptionPane.showMessageDialog(null, "Jugador " + (jugadorActual + 1) + " (" + (jugadorActual == p1Color ? "Blanco" : "Negro") + ") no tiene movimientos disponibles. Paso de turno.");
                 jugadorActual = 1 - jugadorActual; // Cambiamos al otro jugador
-            }
+            }*/
             //CODIGO NUEVO TERMINA
             turnoCont++;
         }
@@ -323,7 +323,7 @@ public class OthelloMaster {
 
             //CODIGO NUEVO EMPIEZA
             // agregamos el código para verificar si el tablero está lleno y mostrar un mensaje de empate si es así.
-            gameOver = endGameOver(tablero) || tableroLleno(tablero);
+            /*gameOver = endGameOver(tablero) || tableroLleno(tablero);
             if (gameOver) {
                 JOptionPane.showMessageDialog(null, "¡Empate! El tablero está lleno.");
                 break; // Terminamos el bucle mientras el juego ha terminado
@@ -333,7 +333,7 @@ public class OthelloMaster {
             if (!tieneMovimientosDisponibles(tablero, jugadorActual)) {
                 JOptionPane.showMessageDialog(null, "Jugador " + (jugadorActual + 1) + " (" + (jugadorActual == p1Color ? "Blanco" : "Negro") + ") no tiene movimientos disponibles. Paso de turno.");
                 jugadorActual = 1 - jugadorActual; // Cambiamos al otro jugador
-            }
+            }*/
             //CODIGO NUEVO TERMINA
             turnoCont++;
         }
@@ -478,7 +478,7 @@ public class OthelloMaster {
 
     //CODIGO NUEVO BEGIN
     // Función para verificar si el tablero está lleno
-    private static boolean tableroLleno(int[][] tablero) {
+    /*private static boolean tableroLleno(int[][] tablero) {
         for (int[] fila : tablero) {
             for (int entrada : fila) {
                 if (entrada == 2) { // Si hay al menos una casilla vacía, el tablero no está lleno
@@ -487,7 +487,7 @@ public class OthelloMaster {
             }
         }
         return true; // Si no hay casillas vacías, el tablero está lleno
-    }
+    }*/
     //CODIGO NUEVO END
 
     //CODIGO NUEVO BEGIN
